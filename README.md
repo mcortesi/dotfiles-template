@@ -1,4 +1,68 @@
-# Dotfiles
+# Intro
+
+* Forked from https://github.com/nicknisi/dotfiles.git
+* Heavily modified
+
+### Installation
+
+If on OSX, you will need to install the XCode CLI tools before continuing. To do so, open a terminal and type
+
+```bash
+➜ xcode-select --install
+```
+
+Then, clone the dotfiles repository to your home directory as `~/.dotfiles`.
+
+```bash
+➜ git clone https://github.com/mcortesi/dotfiles-template.git ~/.dotfiles
+➜ cd ~/.dotfiles
+➜ ./install.sh
+```
+
+Most of the magic happens on `brew.sh`. Check it before running install. You can run the command multiple times and will only install newly added dependencies.
+
+It will:
+  * Install homebrew if required
+  * Setup homebrew casks & fonts repositories
+  * Installs `zsh`
+    * symlink `.zshrc` (check it on `zsh/zshrc.symlink`)
+    * Make `zsh` your default shell
+  * Installs `git`
+    * Installs `hub` ([github's git wrapper](https://hub.github.com/))
+    * Configures and installs a better diff `diff-so-fancy` (check gitconfig `diff` entry)
+    * Symlinks global `gitignore`, `giconfig` personal & for celo.
+    * Attemps to replace usr/email on gitconfig. Please double check!
+  * Installs `vim`
+    * Actually neovim with a lot of goodies
+    * Requires python
+    * Links `nvim` and `.vimrc` config
+  * Installs everyday dev packages
+    * `bat` (nicer `cat` for sourcecode)
+    * `fd` (nicer and faster `find`)
+    * `jq` (awesome json manipulation tool)
+    * many others
+  * Installs Node dev packages
+  * Installs Golang dev packages
+  * Installs coding fonts 
+  * Installs some application through casks
+    * google chrome
+    * spotify
+    * iterm2
+    * vscode
+  * Some other packages
+
+Installs also runs `osx.sh` but at this point not sure if works as intended
+  
+## Zsh Config
+
+After running install check your `.zshrc`
+
+  * It uses `zplug` (slimmer version of oh-my-zsh)
+    * Look at `zplug.zsh` for plugins installed
+  * Set ups env variables for many things, review them to fit your needs
+
+
+# OLD README
 
 Welcome to my world. This is a collection of vim, tmux, and zsh configurations. Interested in a video walkthrough of the dotfiles? Check out my talk, [vim + tmux](https://www.youtube.com/watch?v=5r6yzFEXajQ).
 
