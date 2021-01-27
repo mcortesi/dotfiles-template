@@ -1,0 +1,293 @@
+# Uncomment to debug startup (and at the end of the file)
+# Taken from https://blog.askesis.pl/post/2017/04/how-to-debug-zsh-startup-time.html
+#zmodload zsh/zprof
+
+export DOTFILES=$HOME/.dotfiles
+export ZSH=$DOTFILES/zsh
+
+# TODO: check https://dustri.org/b/my-zsh-configuration.html
+# TODO check https://github.com/mika/zsh-pony
+
+
+# Native ZSH feature: https://nuclearsquid.com/writings/reporttime-in-zsh/
+# Report stats for task longer that XX seconds
+export REPORTTIME=10
+
+
+############################################
+# Setup TERM
+############################################
+# [[ -e ~/.terminfo ]] && export TERMINFO_DIRS=~/.terminfo:/usr/share/terminfo
+# if [ -z "$TMUX" ]; then
+#     export TERM=xterm-256color-italic
+# else
+#     export TERM=tmux-256color-italic
+# fi
+
+############################################
+# Key Bindings
+############################################
+
+# Set Emacs Mode
+bindkey -e 
+# move to next word with ctrl-F
+# bindkey -M viins "^F" vi-forward-word
+# Move to end of line with ctrl-E
+# bindkey -M viins "^E" vi-add-eol
+
+# make terminal command navigation sane again
+# bindkey '^[^[[D' backward-word
+# bindkey '^[^[[C' forward-word
+# bindkey '^[[5D' beginning-of-line
+# bindkey '^[[5C' end-of-line
+# bindkey '^[[3~' delete-char
+# bindkey '^?' backward-delete-char
+
+############################################
+# Configure PROMPT
+############################################
+
+# Configure Prompt
+# source "$ZSH/prompt.zsh"
+
+setopt PROMPT_SUBST
+
+# Reference: http://zsh.sourceforge.net/Doc/Release/Prompt-Expansion.html#Prompt-Expansion
+# username path >
+export PROMPT="%B%F{cyan}%n %F{blue}%2~%b%#%f "
+
+############################################
+# Configure ZSH History
+############################################
+
+HISTFILE=~/.zsh_history
+HISTSIZE=10000
+SAVEHIST=10000
+
+# history
+setopt HIST_VERIFY
+setopt HIST_REDUCE_BLANKS
+setopt HIST_IGNORE_ALL_DUPS
+
+setopt    extended_history       # record timestamp of command in HISTFILE
+setopt    sharehistory           # Share history across terminals
+setopt    hist_ignore_space      # ignore commands that start with space
+
+############################################
+# Other ZSH Options
+############################################
+
+# JOB Control Options
+# -------------------
+setopt NO_BG_NICE
+setopt NO_HUP
+
+# Zsh Function options
+# -------------------
+setopt NO_LIST_BEEP
+
+# DISABLED SINCE ZPLUG ASSUMES OTHERWISE
+
+# setopt LOCAL_OPTIONS
+# If this option is set when a signal trap is set inside a function, 
+# then the previous status of the trap for that signal will be restored when the function exits
+# setopt LOCAL_TRAPS
+
+#setopt IGNORE_EOF
+
+############################################
+# ENV Variables
+############################################
+
+# OS X will use colors for LS with this
+export CLICOLOR=true
+
+export EDITOR='nvim'
+export GIT_EDITOR='nvim'
+
+# rigrep config
+export RIPGREP_CONFIG_PATH="$HOME/.rgrc"
+
+# GO Setup
+export CODE_DIR="$HOME/code"
+export GOPATH="$CODE_DIR/go"
+export PATH=$PATH:${GOPATH//://bin:}/bin
+
+# Android Setup
+export ANDROID_HOME=/usr/local/share/android-sdk
+export ANDROID_NDK=/usr/local/share/android-ndk
+# export PATH=$PATH:$ANDROID_HOME/emulator
+# export PATH=$PATH:$ANDROID_HOME/tools
+# export PATH=$PATH:$ANDROID_HOME/tools/bin
+# export PATH=$PATH:$ANDROID_HOME/platform-tools
+
+# Default editor for debugging react 
+export REACT_EDITOR=code
+
+# ENV Variables for colors
+source "$ZSH/colors.zsh"
+
+# LOCALE
+export LC_ALL=en_US.UTF-8
+
+# Configure SSH to sue sekey ssh-agent
+# Commented: Defined in .ssh/config
+# export SSH_AUTH_SOCK=$HOME/.sekey/ssh-agent.ssh
+
+############################################
+# Run zsh child configs
+############################################
+
+# Define Aliases & Functions
+source "$ZSH/aliases.zsh"
+source "$ZSH/functions.zsh"
+fpath=($ZSH/functions $fpath)
+autoload -U $ZSH/functions/*(:t)
+
+# Run local (not public git friendly) zsh file
+if [[ -a ~/.localrc ]]; then
+    source ~/.localrc
+fi
+
+############################################
+# Setup PATH basic directories
+############################################
+
+export PATH=/usr/local/bin:$PATH
+
+# add /usr/local/sbin
+if [[ -d /usr/local/sbin ]]; then
+    export PATH=/usr/local/sbin:$PATH
+fi
+
+# adding path directory for custom scripts
+export PATH=$DOTFILES/bin:$PATH
+
+# check for custom bin directory and add to path
+if [[ -d ~/bin ]]; then
+    export PATH=~/bin:$PATH
+fi
+
+############################################
+# Color For man pages
+############################################
+export MANROFFOPT='-c'
+export LESS_TERMCAP_mb=$(tput bold; tput setaf 2)
+export LESS_TERMCAP_md=$(tput bold; tput setaf 6)
+export LESS_TERMCAP_me=$(tput sgr0)
+export LESS_TERMCAP_so=$(tput bold; tput setaf 3; tput setab 4)
+export LESS_TERMCAP_se=$(tput rmso; tput sgr0)
+export LESS_TERMCAP_us=$(tput smul; tput bold; tput setaf 7)
+export LESS_TERMCAP_ue=$(tput rmul; tput sgr0)
+export LESS_TERMCAP_mr=$(tput rev)
+export LESS_TERMCAP_mh=$(tput dim)
+
+############################################
+# Setup Homebrew install completions
+############################################
+
+# Snippet obtained from https://docs.brew.sh/Shell-Completion
+if type brew &>/dev/null; then
+  FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
+fi
+
+
+############################################
+# Setup FZF
+############################################
+ 
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+export FZF_CTRL_T_COMMAND="fd --color=never"
+export FZF_ALT_C_COMMAND="fd --color=never--type d"
+
+############################################
+# Setup Z
+############################################
+
+# Now using zplug plugin for Z not homebrew 
+# Needs to happen before loading fz zplug plugin
+#zpath="$(brew --prefix)/etc/profile.d/z.sh"
+#[ -f "${zpath}" ] && source "${zpath}"
+
+############################################
+# ZPLUG Plugins
+############################################
+
+source "$ZSH/zplug.zsh"
+
+############################################
+# Setup hub
+############################################
+if command -v hub > /dev/null 2>&1; then
+    alias git=hub
+fi
+
+############################################
+# Setup Google Cloud SDK
+############################################
+
+if command -v gcloud > /dev/null 2>&1; then
+    # Obtained from `brew cask info google-cloud-sdk`
+    local gcloud_path="/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk"
+    source "${gcloud_path}/path.zsh.inc"
+    source "${gcloud_path}/completion.zsh.inc"
+fi
+
+############################################
+# Initialize ZSH Completion
+############################################
+
+# Prevents aliases on the command line from being internally substituted before completion is attempted. 
+# The effect is to make the alias a distinct command for completion purposes.
+# setopt complete_aliases
+
+#autoload -U compinit add-zsh-hook
+#compinit
+# initialize autocomplete
+autoload -Uz compinit
+for dump in ~/.zcompdump(N.mh+24); do
+  compinit
+done
+compinit -C
+
+
+# matches case insensitive for lowercase
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+
+# pasting with tabs doesn't perform completion
+zstyle ':completion:*' insert-tab pending
+
+# default to file completion
+zstyle ':completion:*' completer _expand _complete _files _correct _approximate _history
+
+# show menu when more than 4 choices, menu has search enabled
+zstyle ':completion:*' menu select=4 search
+
+# prefer verbose option when available
+zstyle ':completion:*' verbose yes
+
+
+# Install kubecetl completion
+[[ $commands[kubectl] ]] && source <(kubectl completion zsh)
+
+############################################
+# CELO Stuff
+############################################
+
+# Where you keep your Celo stuff
+export CELO_ROOT=$CODE_DIR/celo
+export CELO_BLOCKCHAIN=$CELO_ROOT/celo-blockchain
+export CELO_MONOREPO=$CELO_ROOT/celo-monorepo
+export GETH_BUILD_PATH=$CELO_ROOT/geth/build/bin/
+
+# Your github handle
+export HANDLE=mcortesi
+
+# Run SSH Agent. Use ssh-add to add and remember keys for the session.
+# celo-monorepo will need you to do this with your github key when updating geth dependencies.
+# eval `ssh-agent`
+
+alias celotooljs="$CELO_ROOT/celo-monorepo/packages/celotool/bin/celotooljs.sh"
+
+# Uncomment to debug startup
+#zprof
